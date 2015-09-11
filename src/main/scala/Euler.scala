@@ -503,7 +503,7 @@ object Euler extends App {
   def gcd(a: BigInt, b: BigInt): BigInt = if (b.equals(BigInt(0))) a else gcd(b, a % b)
 
   case class Frac(numer: BigInt, denum: BigInt = 1) {
-    require(denum != BigInt(0), "Can't divide by 0")
+    require(!denum.equals(BigInt(0)), "Can't divide by 0")
     def reduce = {
       val g = gcd(numer, denum)
       Frac(numer / g, denum / g)
@@ -514,25 +514,29 @@ object Euler extends App {
     def -(other: Frac) = Frac(numer * other.denum - other.numer * denum, denum * other.denum).reduce
     def inv = Frac(denum, numer)
     override def toString =
-      (if (numer < 0 ^ denum < 0) "-" else "") + numer.toString + "/" + (denum * (if (denum < 0) -1 else 1)).toString
+      (if ((numer < 0) ^ (denum < 0)) "-" else "") + numer.abs.toString + "/" + denum.abs.toString
   }
   object Frac {
-    implicit def fromInt(n: Int): Frac = Frac(n)
-    implicit def fromLong(n: Long): Frac = Frac(n)
+    implicit def int2Frac(n: Int): Frac = Frac(n)
+    implicit def long2Frac(n: Long): Frac = Frac(n)
   }
 
+  // Improved to a tailrec solution
   def sqrtSeries(expansion: Int) = {
-    def sqrtRec2(i: Int, res: Frac): Frac = {
+    def sqrtRec(i: Int, res: Frac): Frac = {
       if (i == 1) res
-      else sqrtRec2(i-1, (2 + res).inv)
+      else sqrtRec(i-1, (2 + res).inv)
     }
 
-    1 + sqrtRec2(expansion, Frac(1, 2))
+    1 + sqrtRec(expansion, Frac(1, 2))
   }
   lazy val e57 = (1 to 1000).map(sqrtSeries).
     count(f => f.numer.toString().length > f.denum.toString().length) // 153
-  println(e57)
 
+  // Found a much better solution that doesn't involve re-making the same expressions over and over
+  lazy val sqrtStream: Stream[Frac] = (1 + Frac(1, 2)) #:: sqrtStream.map(f => 1 + (1 + f).inv)
+  lazy val e57b = sqrtStream.take(1000).
+    count(f => f.numer.toString().length > f.denum.toString().length)
 
   // Euler 58
   def primeTest(n: Int): Boolean = {
@@ -542,8 +546,7 @@ object Euler extends App {
     if (n < 9) return true
     if (n % 3 == 0) return false
 
-    !Stream.from(5, 6).takeWhile(x => x * x <= n).
-      exists(x => n % x == 0 || n % (x + 2) == 0)
+    !Stream.from(5, 6).takeWhile(x => x * x <= n).exists(x => n % x == 0 || n % (x + 2) == 0)
   }
   def primesInLayer(n: Int): Int = {
     val largest = (2 * n + 1) * (2 * n + 1)
