@@ -577,5 +577,14 @@ object Euler extends App {
                             } mkString "" split " and " length
   } yield (a.toString + b.toString + c.toString, count)
 
-  //  println(possibles.maxBy(_._2))
+  lazy val code: String = possibles.maxBy(_._2)._1
+
+  lazy val codeStream: Stream[Char] = Stream.continually(code.toStream).flatten
+  lazy val decrypted = encoded zip codeStream map {
+    case (text, key) => (text.toInt ^ key.toInt).toChar
+  } mkString ""
+
+  lazy val e59: Int = (encoded zip codeStream map { case (text, key) => text.toInt ^ key.toInt }).toList.sum // 107359
+
+
 }
