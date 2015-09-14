@@ -530,13 +530,14 @@ object Euler extends App {
 
     1 + sqrtRec(expansion, Frac(1, 2))
   }
-  lazy val e57 = (1 to 1000).map(sqrtSeries).
-    count(f => f.numer.toString().length > f.denum.toString().length) // 153
+  lazy val e57 = (1 to 1000).map(sqrtSeries).count(f => f.numer.toString().length > f.denum.toString().length) // 153
 
   // Found a much better solution that doesn't involve re-making the same expressions over and over
-  lazy val sqrtStream: Stream[Frac] = (1 + Frac(1, 2)) #:: sqrtStream.map(f => 1 + (1 + f).inv)
-  lazy val e57b = sqrtStream.take(1000).
-    count(f => f.numer.toString().length > f.denum.toString().length)
+  lazy val sqrtStream: Stream[Frac] = Frac(3, 2) #:: sqrtStream.map(f => 1 + (1 + f).inv)
+  lazy val e57b = sqrtStream.take(1000).count(f => f.numer.toString().length > f.denum.toString().length)
+
+  lazy val sqrtStream2: Iterator[Frac] = Iterator.iterate(Frac(3, 2))(x => 1 + (1 + x).inv)
+  lazy val e57c = sqrtStream2.take(1000).count(f => f.numer.toString().length > f.denum.toString().length)
 
   // Euler 58
   def primeTest(n: Int): Boolean = {
@@ -577,14 +578,33 @@ object Euler extends App {
                             } mkString "" split " and " length
   } yield (a.toString + b.toString + c.toString, count)
 
-  lazy val code: String = "god" // possibles.maxBy(_._2)._1 // "god"
+  lazy val code: String = "god" // possibles.maxBy(_._2)._1 // Answer is "god". No need to re-run the brute-force
 
   lazy val codeStream: Stream[Char] = Stream.continually(code.toStream).flatten
-  lazy val decrypted = encoded zip codeStream map {
-    case (text, key) => (text.toInt ^ key.toInt).toChar
-  } mkString ""
+  lazy val decryptedAscii = encoded zip codeStream map { case (text, key) => text.toInt ^ key.toInt }
+  lazy val decrypted = decryptedAscii.map(_.toChar) mkString ""
 
-  lazy val e59: Int = (encoded zip codeStream map { case (text, key) => text.toInt ^ key.toInt }).toList.sum // 107359
+  lazy val e59: Int = decryptedAscii.toSeq.sum // 107359
 
+  // Euler 60
+  val limit60 = 1000
+  lazy val fives = (for { a <- 0 to limit60
+                          b <- a+1 to limit60+1
+                          c <- b+1 to limit60+2
+                          d <- c+1 to limit60+3
+                          e <- d+1 to limit60+4
+                          pa = primes.drop(1).drop(a)
+                          pb = pa.drop(b-a)
+                          pc = pb.drop(c-b)
+                          pd = pc.drop(d-c)
+                          pe = pd.drop(e-d)
+  } yield List(pa.head, pb.head, pc.head, pd.head, pe.head)).map(l => (l, l.sum))
 
+  lazy val e60 = fives.filter { case (list, sum) =>
+    (for (a <- list; b <- list) yield (a, b)).forall{
+      case (a, b) =>
+        a != b && isPrime((a.toString + b.toString).toInt) && isPrime((b.toString + a.toString).toInt)
+    }
+  }.toList.minBy(_._2)
+//  println(e60)
 }
