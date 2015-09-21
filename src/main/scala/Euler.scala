@@ -500,9 +500,9 @@ object Euler extends App {
   lazy val e56 = bigPowers.map(_.toString().toCharArray.map(_.asDigit).sum).max // 972
 
   // Euler 57
-  def gcd(a: BigInt, b: BigInt): BigInt = if (b.equals(BigInt(0))) a else gcd(b, a % b)
-
   case class Frac(numer: BigInt, denum: BigInt = 1) {
+    def gcd(a: BigInt, b: BigInt): BigInt = if (b.equals(BigInt(0))) a else gcd(b, a % b)
+
     require(!denum.equals(BigInt(0)), "Can't divide by 0")
     def reduce = {
       val g = gcd(numer, denum)
@@ -530,7 +530,7 @@ object Euler extends App {
 
     1 + sqrtRec(expansion, Frac(1, 2))
   }
-  lazy val e57 = (1 to 1000).map(sqrtSeries).count(f => f.numer.toString().length > f.denum.toString().length) // 153
+  lazy val e57a = (1 to 1000).map(sqrtSeries).count(f => f.numer.toString().length > f.denum.toString().length) // 153
 
   // Found a much better solution that doesn't involve re-making the same expressions over and over
   lazy val sqrtStream: Stream[Frac] = Frac(3, 2) #:: sqrtStream.map(f => 1 + (1 + f).inv)
@@ -587,7 +587,7 @@ object Euler extends App {
   lazy val e59: Int = decryptedAscii.toSeq.sum // 107359
 
   // Euler 60
-  val limit60 = 1000
+  lazy val limit60 = 1000
   lazy val fives = (for { a <- 0 to limit60
                           b <- a+1 to limit60+1
                           c <- b+1 to limit60+2
