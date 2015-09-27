@@ -540,7 +540,7 @@ object Euler extends App {
   lazy val e57c = sqrtStream2.take(1000).count(f => f.numer.toString().length > f.denum.toString().length)
 
   // Euler 58
-  def primeTest(n: Int): Boolean = {
+  def primeTest(n: Long): Boolean = {
     if (n <= 1) return false
     if (n == 2) return true
     if (n % 2 == 0) return false
@@ -550,7 +550,7 @@ object Euler extends App {
     !Stream.from(5, 6).takeWhile(x => x * x <= n).exists(x => n % x == 0 || n % (x + 2) == 0)
   }
   def primesInLayer(n: Int): Int = {
-    val largest = (2 * n + 1) * (2 * n + 1)
+    val largest = ((2 * n + 1) * (2 * n + 1)).toLong
     val diff = 2 * n
     Seq(largest - 3*diff, largest - 2*diff, largest - diff, largest).count(primeTest)
   }
@@ -587,24 +587,39 @@ object Euler extends App {
   lazy val e59: Int = decryptedAscii.toSeq.sum // 107359
 
   // Euler 60
-  lazy val limit60 = 1000
-  lazy val fives = (for { a <- 0 to limit60
-                          b <- a+1 to limit60+1
-                          c <- b+1 to limit60+2
-                          d <- c+1 to limit60+3
-                          e <- d+1 to limit60+4
-                          pa = primes.drop(1).drop(a)
-                          pb = pa.drop(b-a)
-                          pc = pb.drop(c-b)
-                          pd = pc.drop(d-c)
-                          pe = pd.drop(e-d)
-  } yield List(pa.head, pb.head, pc.head, pd.head, pe.head)).map(l => (l, l.sum))
+  //  lazy val fives = for {a <- 0 until limit60 - 4
+  //                        b <- a + 1 until limit60 - 3
+  //                        c <- b + 1 until limit60 - 2
+  //                        d <- c + 1 until limit60 - 1
+  //                        e <- d + 1 until limit60
+  //  } yield List(a, b, c, d, e)
 
-  lazy val e60 = fives.filter { case (list, sum) =>
-    (for (a <- list; b <- list) yield (a, b)).forall{
-      case (a, b) =>
-        a != b && isPrime((a.toString + b.toString).toInt) && isPrime((b.toString + a.toString).toInt)
+  def pairs[T](list: List[T]): Set[(T, T)] = {
+    def pairsRec(l: List[T], res: Set[(T, T)]): Set[(T, T)] = l match {
+      case Nil => res
+      case h :: t => pairsRec(t, res ++ t.map(x => (h, x)))
     }
-  }.toList.minBy(_._2)
-//  println(e60)
+    pairsRec(list, Set())
+  }
+  lazy val limit60 = 125
+  lazy val primes60 = primes.slice(1, limit60 + 1).toList // skip 2. doesn't help.
+
+  lazy val e60 = {
+    var result: (List[Long], Long) = (List(), Long.MaxValue)
+    for {a <- 0 until limit60 - 4
+         b <- a + 1 until limit60 - 3
+         c <- b + 1 until limit60 - 2
+         d <- c + 1 until limit60 - 1
+         e <- d + 1 until limit60
+         primeList = List(a, b, c, d, e).map(primes60)
+         ps = pairs(primeList)
+         if ps.forall { case (x, y) =>
+           val (pa, pb) = (x.toString, y.toString)
+           primeTest((pa + pb).toLong) && primeTest((pb + pa).toLong)
+         }
+    } result = (primeList, math.min(result._2, primeList.sum))
+    result
+  } // Doesn't work on the first 125 primes. Needs more work.
+
+
 }
