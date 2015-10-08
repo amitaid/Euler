@@ -357,9 +357,9 @@ object Euler extends App {
   lazy val e41 = primes.dropWhile(_ <= 1000000).takeWhile(_ <= 10000000).reverseIterator.find(isPandigital) // 7652413
 
   // Euler 42
-  def isTriangle(t: Long) = ((1 + math.sqrt(1 + 8 * t)) / 2).isWhole() // Reverse of n*(n-1)/2
+  def isTriangular(t: Long) = ((1 + math.sqrt(1 + 8 * t)) / 2).isWhole() // Reverse of n*(n+  1)/2
   lazy val triWords = Source.fromURL(getClass.getResource("p042_words.txt")).mkString.replaceAll("\"", "").split(",")
-  lazy val e42 = triWords.map(_.map(_ - 'A' + 1).sum.toLong).count(isTriangle) // 162
+  lazy val e42 = triWords.map(_.map(_ - 'A' + 1).sum.toLong).count(isTriangular) // 162
 
   // Euler 43
   lazy val smallPrimes = List(2, 3, 5, 7, 11, 13, 17)
@@ -381,7 +381,8 @@ object Euler extends App {
 
   // Euler 45
   def isHexagonal(h: Long) = ((1 + math.sqrt(1 + 8 * h))/4).isWhole()
-  lazy val e45 = pentagonals.dropWhile(_ < 40756).find(n => isTriangle(n) && isPentagonal(n) && isHexagonal(n)) // 1533776805
+  lazy val e45 = pentagonals.
+    dropWhile(_ < 40756).find(n => isTriangular(n) && isPentagonal(n) && isHexagonal(n)) // 1533776805
 
   // Euler 46
   def isGoldbach(g: Long) = !primes35.contains(g) && primes35.exists(p => math.sqrt((g - p)/2).isWhole())
@@ -587,13 +588,6 @@ object Euler extends App {
   lazy val e59: Int = decryptedAscii.toSeq.sum // 107359
 
   // Euler 60
-  //  lazy val fives = for {a <- 0 until limit60 - 4
-  //                        b <- a + 1 until limit60 - 3
-  //                        c <- b + 1 until limit60 - 2
-  //                        d <- c + 1 until limit60 - 1
-  //                        e <- d + 1 until limit60
-  //  } yield List(a, b, c, d, e)
-
   def pairs[T](list: List[T]): Set[(T, T)] = {
     def pairsRec(l: List[T], res: Set[(T, T)]): Set[(T, T)] = l match {
       case Nil => res
@@ -621,5 +615,39 @@ object Euler extends App {
     result
   } // Doesn't work on the first 125 primes. Needs more work.
 
+  // Euler 61
+  def isSquare(num: Long): Boolean = math.sqrt(num).isWhole()
+  def isHeptagonal(num: Long): Boolean = ((3 + math.sqrt(9 + 40*num)) / 10).isWhole()
+  def isOctagonal(num: Long): Boolean = ((2 + math.sqrt(4 + 12*num)) / 6).isWhole()
 
+  lazy val fourDigits = 1000 to 9999
+
+  lazy val triangular61 = fourDigits.filter(x => isTriangular(x.toLong))
+  lazy val square61 = fourDigits.filter(x => isSquare(x.toLong))
+  lazy val pentagonal61 = fourDigits.filter(x => isPentagonal(x.toLong))
+  lazy val hexagonal61 = fourDigits.filter(x => isHexagonal(x.toLong))
+  lazy val heptagonal61 = fourDigits.filter(x => isHeptagonal(x.toLong))
+  lazy val octagonal61 = fourDigits.filter(x => isOctagonal(x.toLong))
+
+  lazy val perms61 = List(triangular61, square61, pentagonal61, hexagonal61, heptagonal61, octagonal61)
+    .map(_.map(x => x.toString).map(s => s.substring(0, 2) -> s.substring(2, 4))
+      .toMap.filterNot(p => p._1 == p._2)).permutations
+
+  lazy val e61 = (for {
+    l <- perms61
+    a <- l.head
+    if l(1).contains(a._2)
+    b = l(1)(a._2)
+    if l(2).contains(b)
+    c = l(2)(b)
+    if l(3).contains(c)
+    d = l(3)(c)
+    if l(4).contains(d)
+    e = l(4)(d)
+    if l(5).contains(e)
+    f = l(5)(e)
+    if f == a._1
+  } yield Seq(a._1, a._2, b, c, d, e, f)).toSeq.head.sliding(2).map(_ mkString "").map(_.toInt).sum // 28684
+
+  
 }
