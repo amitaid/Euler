@@ -649,5 +649,14 @@ object Euler extends App {
     if f == a._1
   } yield Seq(a._1, a._2, b, c, d, e, f)).toSeq.head.sliding(2).map(_ mkString "").map(_.toInt).sum // 28684
 
-  
+  // Euler 62
+  def isStringCube(n: String) = math.cbrt(n.toDouble).isWhole()
+  def charCount(s: String) = s.toCharArray.groupBy(s => s).mapValues(_.length)
+
+  lazy val cubes62 = (1000L to 10000L).map(math.pow(_, 3).toLong.toString).toList
+  lazy val e62 = cubes62.find(s => {
+    val charCounts = charCount(s)
+    cubes62.count(s2 => charCount(s2) equals charCounts) == 5
+  }) // 127035954683
+
 }
