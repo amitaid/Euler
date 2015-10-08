@@ -657,6 +657,11 @@ object Euler extends App {
   lazy val e62 = cubes62.find(s => {
     val charCounts = charCount(s)
     cubes62.count(s2 => charCount(s2) equals charCounts) == 5
-  }) // 127035954683
+  }).get // 127035954683
+
+  // Euler 63
+  lazy val e63 = (2 to 20).flatMap(num =>
+    (2 to 100).map(pow => (pow, math.pow(num, pow).toLong))).count(p => p._1 == p._2.toString.length) // 49
+
 
 }
