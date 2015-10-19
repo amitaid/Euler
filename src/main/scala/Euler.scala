@@ -1,6 +1,7 @@
 import scala.collection.immutable.HashSet
 import scala.io.Source
 import scala.math.BigInt
+import Function.tupled
 
 object Euler extends App {
 
@@ -663,5 +664,29 @@ object Euler extends App {
   lazy val e63 = (2 to 20).flatMap(num =>
     (2 to 100).map(pow => (pow, math.pow(num, pow).toLong))).count(p => p._1 == p._2.toString.length) // 49
 
+  // Euler 66
+  def solveDiophantine(y: Long, d: Int) = math.sqrt(1 + d * y * y)
 
+  lazy val e66 = (2 to 1000).
+    map(d => {
+      val y = Iterator.iterate(2L)(_+1L).find(y => solveDiophantine(y, d).isWhole()).get
+      (y, d)
+    }).maxBy{case (y, d) => solveDiophantine(y, d)}
+  //println("x -> " + solveDiophantine(e66._1, e66._2).round, "y -> " + e66._1, "d -> " + e66._2)
+  // Does not work at the moment. Numbers need to be much longer than "long" for the right result
+
+  // Euler 67
+  lazy val triangle67 = Source.fromURL(getClass.getResource("p067_triangle.txt"))
+    .getLines().map(_.split(" ").map(_.toInt)).toArray.reverse
+
+  def findMaxPath(triangle: Array[Array[Int]]): Int = {
+    def getMaxPairList(arr: Array[Int]): Array[Int] = arr.sliding(2).map(p => math.max(p(0), p(1))).toArray
+    def combine(arr1: Array[Int], arr2: Array[Int]): Array[Int] = arr1.zip(arr2).map(tupled(_ + _))
+
+    val arrays = Array.fill(triangle67.head.length + 1)(0)
+
+    triangle67.foldLeft(arrays){ case (a1, a2) => combine(getMaxPairList(a1), a2) }.head
+  }
+  
+  lazy val e67 = findMaxPath(triangle67)
 }
