@@ -25,8 +25,9 @@ object Euler extends App {
   def palindrome(x: Int): Boolean = x.toString == x.toString.reverse
 
   lazy val e4 = (for (i <- 999 to 100 by -1;
-                      j <- 999 to 100 by -1
-                      if palindrome(i * j)) yield i * j).max
+                      j <- 999 to 100 by -1;
+                      x = i * j
+                      if palindrome(x)) yield x).max
 
   // Euler 5
   def primeFactors(n: Int) = {
@@ -106,7 +107,7 @@ object Euler extends App {
     collatzRec(n, 0)
   }
 
-  lazy val e14 = (1 until 1000000).maxBy(n => collatz(n))
+  lazy val e14 = (1L until 1000000L).maxBy(collatz)
 
   // Euler 15
   def subFact(from: Int, to: Int): BigInt = {
@@ -683,9 +684,9 @@ object Euler extends App {
     def getMaxPairList(arr: Array[Int]): Array[Int] = arr.sliding(2).map(p => math.max(p(0), p(1))).toArray
     def combine(arr1: Array[Int], arr2: Array[Int]): Array[Int] = arr1.zip(arr2).map(tupled(_ + _))
 
-    val arrays = Array.fill(triangle67.head.length + 1)(0)
+    val zeroArray67 = Array.fill(triangle67.head.length + 1)(0)
 
-    triangle67.foldLeft(arrays){ case (a1, a2) => combine(getMaxPairList(a1), a2) }.head
+    triangle67.foldLeft(zeroArray67){ case (a1, a2) => combine(getMaxPairList(a1), a2) }.head
   }
   
   lazy val e67 = findMaxPath(triangle67)
