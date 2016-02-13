@@ -511,11 +511,12 @@ object Euler extends App {
       val g = gcd(numer, denum)
       Frac(numer / g, denum / g)
     }
-    def /(other: Frac) = Frac(numer * other.denum, denum * other.numer).reduce
-    def *(other: Frac) = Frac(numer * other.numer, denum * other.denum).reduce
-    def +(other: Frac) = Frac(numer * other.denum + other.numer * denum, denum * other.denum).reduce
-    def -(other: Frac) = Frac(numer * other.denum - other.numer * denum, denum * other.denum).reduce
     def inv = Frac(denum, numer)
+    def neg = Frac(-denum, numer)
+    def +(other: Frac) = Frac(numer * other.denum + other.numer * denum, denum * other.denum) reduce
+    def *(other: Frac) = Frac(numer * other.numer, denum * other.denum) reduce
+    def -(other: Frac) = this + other.neg reduce
+    def /(other: Frac) = this * other.inv reduce
     override def toString =
       (if ((numer < 0) ^ (denum < 0)) "-" else "") + numer.abs.toString + "/" + denum.abs.toString
   }
@@ -622,14 +623,14 @@ object Euler extends App {
   def isHeptagonal(num: Long): Boolean = ((3 + math.sqrt(9 + 40*num)) / 10).isWhole()
   def isOctagonal(num: Long): Boolean = ((2 + math.sqrt(4 + 12*num)) / 6).isWhole()
 
-  lazy val fourDigits = 1000 to 9999
+  lazy val fourDigits = 1000L to 9999L
 
-  lazy val triangular61 = fourDigits.filter(x => isTriangular(x.toLong))
-  lazy val square61 = fourDigits.filter(x => isSquare(x.toLong))
-  lazy val pentagonal61 = fourDigits.filter(x => isPentagonal(x.toLong))
-  lazy val hexagonal61 = fourDigits.filter(x => isHexagonal(x.toLong))
-  lazy val heptagonal61 = fourDigits.filter(x => isHeptagonal(x.toLong))
-  lazy val octagonal61 = fourDigits.filter(x => isOctagonal(x.toLong))
+  lazy val triangular61 = fourDigits.filter(x => isTriangular(x))
+  lazy val square61 = fourDigits.filter(x => isSquare(x))
+  lazy val pentagonal61 = fourDigits.filter(x => isPentagonal(x))
+  lazy val hexagonal61 = fourDigits.filter(x => isHexagonal(x))
+  lazy val heptagonal61 = fourDigits.filter(x => isHeptagonal(x))
+  lazy val octagonal61 = fourDigits.filter(x => isOctagonal(x))
 
   lazy val perms61 = List(triangular61, square61, pentagonal61, hexagonal61, heptagonal61, octagonal61)
     .map(_.map(x => x.toString).map(s => s.substring(0, 2) -> s.substring(2, 4))
